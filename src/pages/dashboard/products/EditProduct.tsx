@@ -1,0 +1,2651 @@
+import InputWrapper from "@/components/common/wrapper/InputWrapper";
+import PageWrapper from "@/components/common/wrapper/PageWrapper";
+import Input from "@/components/ui/input";
+import { ADD_EDIT_PRODUCT_FORM } from "@/utils/constant/products/addEditProductForm";
+import { useEffect, useState } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useGetBrandsQuery } from "@/components/store/api/brand/brandApi";
+import { useGetAllCategoryQuery } from "@/components/store/api/category/categoryApi";
+import { useGetSubCategoryQuery } from "@/components/store/api/subCategory/subCategoryApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { capitalizeEveryWord } from "@/utils/helper/capitalizeEveryWord";
+import ButtonLoader from "@/components/loader/ButtonLoader";
+import {
+  useAddThumbnailMutation,
+  useGetGalleryQuery,
+} from "@/components/store/api/file/fileApi";
+import SectionWrapper from "@/components/common/wrapper/SectionWrapper";
+import { useGetFeatureQuery } from "@/components/store/api/featureKey/featurekeyApi";
+import {
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Minus,
+  MinusIcon,
+  Plus,
+} from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  useGetEditSingleProductQuery,
+  useGetProductsQuery,
+  useUpdateProductMutation,
+} from "@/components/store/api/products/productApi";
+import { useGetColorsQuery } from "@/components/store/api/color/colorApi";
+import FileInput from "@/components/ui/fileInput";
+import { removeNullishValue } from "@/utils/helper/removeNullishValue";
+import LoaderSpinner from "@/components/loader/LoaderSpinner";
+import {
+  editProductFormData,
+  editProductSchema,
+} from "@/schemas/product/updateProductSchema";
+import { useGetRamsQuery } from "@/components/store/api/ram/ramApi";
+import { useGetRomsQuery } from "@/components/store/api/rom/romApi";
+import { useGetWhatsAppContactsQuery } from "@/components/store/api/whatsApp/whatsAppApi";
+import { useGetSimsQuery } from "@/components/store/api/sim/simApi";
+import { useGetHighlightTextsQuery } from "@/components/store/api/highlightText/highlightTextApi";
+import { removeFalsyValuesProperties } from "@/utils/helper/removeFalsyValuesProperties";
+import { useGetRegionsQuery } from "@/components/store/api/region/regionApi";
+import { useGetChipsetsQuery } from "@/components/store/api/chipset/chipsetApi";
+import { useGetSizesQuery } from "@/components/store/api/size/sizeApi";
+import { useGetFeaturesQuery } from "@/components/store/api/featurelist/featurelistApi";
+import { useGetConditionsQuery } from "@/components/store/api/condition/conditionApi";
+import { useGetVendorsQuery } from "@/components/store/api/vendor/vendorApi";
+import { useGetGiftsQuery } from "@/components/store/api/gift/giftApi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useGetWarrantiesQuery } from "@/components/store/api/warranty/warrantyApi";
+import MultiSelect from "@/components/ui/multiselect";
+import { useGetPlugTypesQuery } from "@/components/store/api/plugType/plugTypeApi";
+import { useGetConnectivitiesQuery } from "@/components/store/api/connectivity/connectivityApi";
+import { useGetConnectorTypesQuery } from "@/components/store/api/connector/connectorApi";
+import { useGetMaterialsQuery } from "@/components/store/api/mateiral/materialApi";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { FiSearch } from "react-icons/fi";
+import { useGetRegularWarrantiesQuery } from "@/components/store/api/regularWarranty/regularWarrantyApi";
+import SearchableSelect from "./SearchableSelect";
+import { useGetTagsQuery } from "@/components/store/api/tags/tagsApi";
+import toast from "react-hot-toast";
+import "react-quill/dist/quill.snow.css";
+import TipTapEditor from "./TipTapEditor";
+import TextArea from "@/components/ui/text-area";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import Paragraph from "@/components/typography/Paragraph";
+import { extractAltText } from "@/utils/helper/extractAltText";
+import DateTimeInput from "@/components/ui/dateTimeInput";
+
+const EditProduct = () => {
+  const { id } = useParams<{ id: string }>();
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const navigate = useNavigate();
+  // GET ALL CATEGORIES QUERY
+  const { data: categoryList, isLoading: categoryLoading } =
+    useGetAllCategoryQuery({ page: 1, size: 1000 });
+  const { data: ramList, isLoading: ramLoading } = useGetRamsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: romList, isLoading: romLoading } = useGetRomsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: regionList, isLoading: regionLoading } = useGetRegionsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: chipsetList, isLoading: chipsetLoading } = useGetChipsetsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: plugList, isLoading: plugLoading } = useGetPlugTypesQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: connectivityList, isLoading: connectivityLoading } =
+    useGetConnectivitiesQuery({ page: 1, size: 1000 });
+  const { data: connectorList, isLoading: connectorLoading } =
+    useGetConnectorTypesQuery({ page: 1, size: 1000 });
+  const { data: strapMaterialList, isLoading: strapMaterialLoading } =
+    useGetMaterialsQuery({ page: 1, size: 1000 });
+  const { data: vendorList, isLoading: vendorLoading } = useGetVendorsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: whatsappList, isLoading: whatsappLoading } =
+    useGetWhatsAppContactsQuery({ page: 1, size: 1000 });
+  const { data: warrantyList, isLoading: warrantyLoading } =
+    useGetWarrantiesQuery({ page: 1, size: 1000 });
+  const { data: highlighList, isLoading: highlightLoading } =
+    useGetHighlightTextsQuery({ page: 1, size: 1000 });
+  const { data: simList, isLoading: simLoading } = useGetSimsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: regularWarrantyList, isLoading: regularWarrantyLoading } =
+    useGetRegularWarrantiesQuery({ page: 1, size: 1000 });
+
+  const { data: tag } = useGetTagsQuery({
+    page: 1,
+    size: 1000,
+  });
+  // GET ALL SUB CATEGORY QUERY
+  const { data: subCategoryList } = useGetSubCategoryQuery({
+    page: 1,
+    size: 1000,
+  });
+  // GET ALL SUB CATEGORY QUERY
+  // const { data: colorList, isLoading: colorLoading } = useGetColorsQuery({});
+  // GET ALL BRANDS QUERY
+  const { data: brandList, isLoading: brandLoading } = useGetBrandsQuery({
+    page: 1,
+    size: 1000,
+  }) as any;
+  const { data: featureList, isLoading: featuredLoading } = useGetFeaturesQuery(
+    { page: 1, size: 1000 }
+  ) as any;
+  const { data: conditionList, isLoading: conditionLoading } =
+    useGetConditionsQuery({ page: 1, size: 1000 }) as any;
+  const { data: colorList, isLoading: colorLoading } = useGetColorsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: features, isLoading: featureLoading } = useGetFeatureQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: products, isLoading: productLoading } = useGetProductsQuery({
+    page: 1,
+    size: 1000,
+  });
+  const { data: giftList, isLoading: giftLoading } = useGetGiftsQuery({
+    page: 1,
+    size: 1000,
+  });
+  // GET ALL FEATURES QUERY
+  const { data: sizeList, isLoading: sizeLoading } = useGetSizesQuery({
+    page: 1,
+    size: 1000,
+  });
+
+  const { data: singleProduct, isLoading: singleProductLoading } =
+    useGetEditSingleProductQuery(id);
+
+  // ADD PRODUCT MUTATION
+  const [editProduct, { isLoading: addProductLoading, error }] =
+    useUpdateProductMutation({}) as any;
+  // ADD THUMBNAIL MUTATION
+  const [uploadingImages, setUploadingImages] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [addThumbnail] = useAddThumbnailMutation({}) as any;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    reset,
+    setError,
+    watch,
+    control,
+    trigger,
+  } = useForm<editProductFormData>({
+    resolver: yupResolver(editProductSchema),
+    defaultValues: {
+      isEmi: false,
+      isFullPay: false,
+      isPointUse: false,
+      freeEmiCharge: 0,
+      features: [{ featureKeyId: 0, value: "" }],
+      images: [{ colorId: 0, imageUrl: "" }],
+      description: singleProduct?.data?.description,
+      subCategoryId:
+        singleProduct?.data?.subCategory?.map((sub) => sub.subCategoryId) || [],
+      tag: singleProduct?.data?.Tags?.map((sub) => sub.tag) || [],
+      highlightAccessories: [],
+      gifts: [],
+      variationProducts: [
+        {
+          ram: "",
+          rom: "",
+          sim: "",
+          size: "",
+          region: "",
+          chipset: "",
+          strapMaterial: "",
+          isShippedFree: false,
+          connectivity: "",
+          plugType: "",
+          connectorType: "",
+          regularWarrantyId: undefined,
+          price: 0,
+          discountPrice: 0,
+          preDiscountPrice: 0,
+          startDate: "",
+          endDate: "",
+          // regularPrice: 0,
+          bookingPrice: 0,
+          purchasePoint: 0,
+          colors: [{ colorId: 0, inStock: true, price: 0, stock: 0 }],
+          extraWarranty: [{ name: "", price: 0 }],
+        },
+      ],
+    },
+  });
+
+  const [selectedSubCategories, setSelectedSubCategories] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [selectedTag, setSelectedTag] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (singleProduct?.data?.subCategory) {
+      setSelectedSubCategories(
+        singleProduct.data.subCategory.map((sub) => ({
+          label: sub?.subCategory?.name,
+          value: sub?.subCategory?.id.toString(),
+        }))
+      );
+    }
+  }, [singleProduct]);
+
+  useEffect(() => {
+    if (selectedSubCategories.length > 0) {
+      setValue(
+        "subCategoryId",
+        selectedSubCategories.map((sub) => Number(sub.value))
+      );
+    }
+    if (selectedTag.length > 0) {
+      setValue("tag", selectedTag);
+    }
+  }, [selectedSubCategories, selectedTag, setValue]);
+
+  const handleSubCategoryChange = (
+    selectedValues: { label: string; value: string }[]
+  ) => {
+    setSelectedSubCategories(selectedValues);
+  };
+
+  const handleTagChange = (
+    selectedValues: { label: string; value: string }[]
+  ) => {
+    const selectedNames = selectedValues.map((option) => option.label);
+    setSelectedTag(selectedNames);
+  };
+
+  const subCategoriesOptions =
+    subCategoryList?.data?.map((single) => ({
+      label: single.name,
+      value: single.id.toString(),
+    })) || [];
+
+  const tags =
+    tag?.data.map((single) => ({
+      label: single.name,
+      value: single.id.toString(),
+    })) || [];
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "features",
+  });
+  const {
+    fields: imagesFields,
+    append: appendImages,
+    remove: removeImages,
+  } = useFieldArray({
+    control,
+    name: "images",
+  });
+
+  const {
+    fields: accessoryFields,
+    append: appendAccessory,
+    remove: removeAccessory,
+  } = useFieldArray({
+    control,
+    // @ts-ignore
+    name: "highlightAccessories",
+  });
+
+  useEffect(() => {
+    if (accessoryFields.length === 0) {
+      // @ts-ignore
+      appendAccessory(0);
+    }
+  }, [accessoryFields, appendAccessory]);
+
+  const handleProductSelect = (productId: string, index: number) => {
+    setValue(`highlightAccessories.${index}`, Number(productId));
+    trigger(`highlightAccessories.${index}`);
+  };
+
+  const handleAppendProduct = () => {
+    // @ts-ignore
+    appendAccessory(0);
+  };
+
+  const {
+    fields: giftFields,
+    append: appendGift,
+    remove: removeGift,
+  } = useFieldArray({
+    control,
+    // @ts-ignore
+    name: "gifts",
+  });
+
+  const handleGiftSelect = (giftId: string, index: number) => {
+    setValue(`gifts.${index}`, Number(giftId));
+    trigger(`gifts.${index}`);
+  };
+  const handleAppendGift = () => {
+    // @ts-ignore
+    appendGift(0);
+  };
+  const handleRemoveGift = (index: number) => {
+    removeGift(index);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    removeAccessory(index);
+  };
+
+  useEffect(() => {
+    if (singleProduct?.data) {
+      const productData = singleProduct?.data;
+      const tagNames =
+        singleProduct.data.Tags?.map((tagObj) => tagObj.tag) || [];
+      reset({
+        type: productData.type || undefined,
+        productName: productData.productName || undefined,
+        tag: tagNames,
+        inSideDeliveryCharge: productData.inSideDeliveryCharge || undefined,
+        outSideDeliveryCharge: productData.outSideDeliveryCharge || undefined,
+        productLink: productData.productLink || undefined,
+        categoryId: productData.categoryId || undefined,
+        subCategoryId: productData.subCategoryId?.map(({ id }) => id) || [],
+        featureId: productData.featureId || undefined,
+        conditionId: productData.conditionId || undefined,
+        brandId: productData.brandId || undefined,
+        description: productData.description || undefined,
+        seoDescription: productData.seoDescription || undefined,
+        seoTitle: productData.seoTitle || undefined,
+        specification: productData.specification || undefined,
+        isEmi: productData?.isEmi || false,
+        orderLimit: productData?.orderLimit || false,
+        isFullPay: productData?.isFullPay || false,
+        isPointUse: productData?.isPointUse || false,
+        freeEmiCharge: productData?.freeEmiCharge || 0,
+        sortDescription: productData?.sortDescription || undefined,
+        //@ts-ignore
+        inBox: productData?.inBox || undefined,
+        vendorId: productData?.vendorId || undefined,
+        highlightText: productData?.highlightText || undefined,
+        whatsAppNumber: productData?.whatsAppNumber || undefined,
+        highlightAccessories:
+          productData.highlightProduct?.map(
+            ({ accessoriesId }) => accessoriesId
+          ) || [],
+        gifts: productData.ProductGift?.map(({ giftId }) => giftId) || [],
+
+        features:
+          productData.ProductFeatures?.map(({ featureKeyId, value, id }) => ({
+            id,
+            featureKeyId,
+            value,
+          })) || [],
+
+        images:
+          productData.ProductImage?.map(({ imageUrl, colorId }) => ({
+            imageUrl,
+            colorId,
+          })) || [],
+
+        // ✅ Ensure each variation gets unique colors and warranties
+        variationProducts: productData.VariationProduct?.map((variation) => ({
+          id: variation.id ?? 0,
+          ram: variation.ram ?? undefined,
+          rom: variation.rom ?? undefined,
+          size: variation.size ?? undefined,
+          price: variation.price ?? 0,
+          region: variation.region ?? undefined,
+          chipset: variation.chipset ?? undefined,
+          startDate: variation.startDate ?? undefined,
+          endDate: variation.endDate ?? undefined,
+          strapMaterial: variation?.strapMaterial ?? undefined,
+          connectivity: variation?.connectivity ?? undefined,
+          plugType: variation.plugType ?? undefined,
+          connectorType: variation.connectorType ?? undefined,
+          regularWarrantyId: variation.regularWarrantyId ?? undefined,
+          discountPrice: variation.discountPrice ?? 0,
+          preDiscountPrice: variation.preDiscountPrice ?? 0,
+          // regularPrice: variation.regularPrice ?? 0,
+          bookingPrice: variation.bookingPrice ?? 0,
+          purchasePoint: variation.purchasePoint ?? 0,
+          sim: variation.sim ?? undefined,
+          isShippedFree: variation?.isShippedFree ?? false,
+
+          // ✅ Assign colors uniquely per variation
+          colors: variation.ProductColor?.map(
+            ({ id, colorId, inStock, price, stock }) => ({
+              id,
+              colorId,
+              inStock,
+              price,
+              stock,
+            })
+          ) || [{ id: 0, colorId: 0, inStock: false, price: 0, stock: 0 }],
+
+          // ✅ Assign extraWarranty uniquely per variation
+          extraWarranty: variation.ExtraWarranty?.map(
+            ({ id, name, price }) => ({
+              id,
+              name,
+              price,
+            })
+          ) || [{ id: 0, name: "", price: 0 }],
+        })) || [
+          {
+            id: 0,
+            ram: "",
+            rom: "",
+            sim: "",
+            size: "",
+            region: "",
+            strapMaterial: "",
+            connectivity: "",
+            plugType: "",
+            connectorType: "",
+            chipset: "",
+            regularWarrantyId: undefined,
+            price: 0,
+            discountPrice: 0,
+            preDiscountPrice: 0,
+            startDate: "",
+            endDate: "",
+            isShippedFree: false,
+            // regularPrice: 0,
+            bookingPrice: 0,
+            purchasePoint: 0,
+            colors: [{ id: 0, colorId: 0, inStock: true, price: 0, stock: 0 }],
+            extraWarranty: [{ id: 0, name: "", price: 0 }],
+          },
+        ],
+      });
+      setSelectedTag(tagNames);
+    }
+  }, [singleProduct, reset, append, appendImages]);
+
+  const [files, setFiles] = useState<{ [key: number]: File | undefined }>({});
+  const [openModal, setOpenModal] = useState(false);
+  const [searchGallery, setSearchGallery] = useState("");
+  const { data: galleries, isLoading: galleryLoading } = useGetGalleryQuery({
+    search: searchGallery,
+  });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const filteredGalleries =
+    galleries?.data?.filter((gallery) => {
+      const searchTerm = searchGallery.toLowerCase();
+      const galleryKey = gallery?.key?.toLowerCase() || "";
+      return galleryKey.includes(searchTerm);
+    }) || [];
+  const [altTexts, setAltTexts] = useState<{ [key: number]: string }>({});
+
+  const handleImageSelect = (index: number, imageUrl: string) => {
+    setValue(`images.${index}.imageUrl`, imageUrl);
+    setFiles((prev) => ({ ...prev, [index]: undefined }));
+    setOpenModal(false);
+  };
+
+  const openGalleryForIndex = (index: number) => {
+    setCurrentImageIndex(index);
+    setOpenModal(true);
+  };
+
+  const handleAddImage = async (index: number, selectedFile: File) => {
+    if (!selectedFile) {
+      toast.error("Image not selected");
+      return;
+    }
+
+    setUploadingImages((prev) => ({ ...prev, [index]: true }));
+    setOpenModal(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedFile);
+      if (altTexts[index]) {
+        formData.append("alt", altTexts[index]);
+      }
+
+      const uploadResponse = await addThumbnail(formData).unwrap();
+
+      if (uploadResponse?.data) {
+        const uploadedImageUrl = uploadResponse.data[0];
+        const images = watch("images") ?? [];
+        const selectedColorId = images[index]?.colorId ?? 0;
+
+        if (!selectedColorId) {
+          toast.error("Please select a color before adding an image.");
+          return;
+        }
+
+        // Update form data for the specific index
+        setValue(`images.${index}.imageUrl`, uploadedImageUrl);
+        setValue(`images.${index}.colorId`, selectedColorId);
+
+        // Update uploading state
+        setUploadingImages((prev) => ({ ...prev, [index]: false }));
+
+        // Success notification
+        toast.success("The image has been uploaded successfully!");
+
+        // Clear only the uploaded file for the specific index
+        setFiles((prev) => ({ ...prev, [index]: undefined }));
+      }
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      toast.error("Something went wrong while uploading the image.");
+    }
+  };
+
+  const {
+    fields: variationFields,
+    append: appendVariation,
+    remove: removeVariation,
+  } = useFieldArray({
+    control,
+    name: "variationProducts",
+  });
+  // Managing colors for each variation
+  const addColor = (index: number) => {
+    setValue(`variationProducts.${index}.colors`, [
+      ...watch(`variationProducts.${index}.colors`),
+      { colorId: 0, inStock: true, id: 0, price: 0, stock: 0 },
+    ]);
+  };
+
+  useEffect(() => {
+    // Check if extraWarranty exists and set a default if not
+    variationFields?.forEach((_, index) => {
+      const warrantyField = watch(
+        `variationProducts.${index}.extraWarranty`,
+        []
+      );
+      if (!warrantyField?.length) {
+        setValue(`variationProducts.${index}.extraWarranty`, [
+          { id: 0, name: "", price: 0 },
+        ]);
+      }
+    });
+  }, [variationFields, setValue, watch]);
+
+  const removeColor = (index: number, colorIndex: number) => {
+    const colors = watch(`variationProducts.${index}.colors`);
+    colors.splice(colorIndex, 1);
+    setValue(`variationProducts.${index}.colors`, colors);
+  };
+
+  // Managing warranties for each variation
+  const addWarranty = (index: number) => {
+    setValue(`variationProducts.${index}.extraWarranty`, [
+      ...watch(`variationProducts.${index}.extraWarranty`),
+      { name: "", price: 0, id: 0 },
+    ]);
+  };
+
+  useEffect(() => {
+    if (fields.length === 0) {
+      append({ id: 0, featureKeyId: 0, value: "" });
+    }
+  }, [fields, append]);
+
+  const removeWarranty = (index: number, warrantyIndex: number) => {
+    const warranties = watch(`variationProducts.${index}.extraWarranty`);
+    warranties.splice(warrantyIndex, 1);
+    setValue(`variationProducts.${index}.extraWarranty`, warranties);
+  };
+
+  const handleAddVariation = () => {
+    appendVariation({
+      ram: "",
+      rom: "",
+      sim: "",
+      size: "",
+      region: "",
+      chipset: "",
+      startDate: "",
+      endDate: "",
+      strapMaterial: "",
+      connectivity: "",
+      plugType: "",
+      connectorType: "",
+      regularWarrantyId: undefined,
+      price: 0,
+      discountPrice: 0,
+      isShippedFree: false,
+      // regularPrice: 0,
+      bookingPrice: 0,
+      purchasePoint: 0,
+      colors: [{ colorId: 0, inStock: true, id: 0, stock: 0, price: 0 }],
+      extraWarranty: [{ name: "", price: 0, id: 0 }],
+    });
+  };
+
+  const addisEmi = watch("isEmi");
+
+  const handleEditProduct = async (data: editProductFormData) => {
+    // @ts-ignore
+    data.variationProducts = data.variationProducts.map((variation) => {
+      const updatedVariation = {
+        ...variation,
+        ram: variation.ram?.trim() === "" ? undefined : variation.ram,
+        rom: variation.rom?.trim() === "" ? undefined : variation.rom,
+        sim: variation.sim?.trim() === "" ? undefined : variation.sim,
+        size: variation.size?.trim() === "" ? undefined : variation.size,
+        region: variation.region?.trim() === "" ? undefined : variation.region,
+        strapMaterial:
+          variation.strapMaterial?.trim() === ""
+            ? undefined
+            : variation.strapMaterial,
+        connectivity:
+          variation.connectivity?.trim() === ""
+            ? undefined
+            : variation.connectivity,
+        regularWarrantyId:
+          variation.regularWarrantyId === undefined
+            ? undefined
+            : variation.regularWarrantyId,
+        plugType:
+          variation.plugType?.trim() === "" ? undefined : variation.plugType,
+        connectorType:
+          variation.connectorType?.trim() === ""
+            ? undefined
+            : variation.connectorType,
+        chipset:
+          variation.chipset?.trim() === "" ? undefined : variation.chipset,
+        price: variation.price || 0,
+        discountPrice: variation.discountPrice || 0,
+        // regularPrice: variation.regularPrice || undefined,
+        bookingPrice: variation.bookingPrice || 0,
+        purchasePoint: variation.purchasePoint || 0,
+        isShippedFree: variation.isShippedFree || false,
+      };
+
+      // Remove nullish values from the colors and extraWarranty arrays
+      if (updatedVariation.colors) {
+        updatedVariation.colors = removeNullishValue(updatedVariation.colors, [
+          "colorId",
+          "inStock",
+          "price",
+          "stock",
+        ]);
+      }
+
+      if (updatedVariation.extraWarranty) {
+        updatedVariation.extraWarranty = removeNullishValue(
+          updatedVariation.extraWarranty,
+          ["name", "price"]
+        );
+      }
+
+      // Clean the variation object
+      const cleanedVariation = removeFalsyValuesProperties(updatedVariation, [
+        "ram",
+        "rom",
+        "sim",
+        "region",
+        "size",
+        "chipset",
+        "strapMaterial",
+        "regularWarrantyId",
+        "connectivity",
+        "plugType",
+        "connectorType",
+        "startDate",
+        "endDate",
+        // "price",
+        // "discountPrice",
+        // "regularPrice",
+        // "bookingPrice",
+        // "purchasePoint",
+      ]);
+
+      return cleanedVariation;
+    });
+
+    console.log({ data });
+    // Clean features array
+    if (data.features) {
+      data.features = removeNullishValue(data.features, [
+        "featureKeyId",
+        "value",
+      ]);
+      if (data.features.length === 0) {
+        data.features = undefined;
+      }
+    }
+
+    // Clean highlightAccessories array
+    if (data.highlightAccessories) {
+      data.highlightAccessories = data.highlightAccessories.filter(
+        (item) => item !== 0 && item !== null && item !== undefined
+      );
+      data.highlightAccessories = removeNullishValue(
+        data.highlightAccessories,
+        []
+      );
+    }
+    if (data.gifts) {
+      data.gifts = data.gifts.filter(
+        (item) => item !== 0 && item !== null && item !== undefined
+      );
+
+      data.gifts = removeNullishValue(data.gifts, []);
+    }
+
+    // Clean optional fields
+    const updateData = removeFalsyValuesProperties(data, [
+      "inBox",
+      "specification",
+      "description",
+      "sortDescription",
+      "highlightText",
+      "inSideDeliveryCharge",
+      "outSideDeliveryCharge",
+      "tag",
+      "seoDescription",
+      "seoTitle",
+      "orderLimit",
+    ]);
+
+    updateData.isEmi = addisEmi;
+    // Proceed with API call to edit the product
+    const result = await editProduct({
+      id: singleProduct?.data.id,
+      data: updateData,
+    });
+
+    if (result?.data?.success) {
+      toast.success("Product updated successfully");
+
+      const newProductLink =
+        updateData.productLink || singleProduct?.data.productLink;
+
+      // Optional: Reset form if needed
+      reset();
+
+      // Navigate to the updated product's edit page
+      navigate(`/kry-admin-portal/edit-product/${newProductLink}`);
+    }
+  };
+
+  // change and copy the link url
+  // const [productLink, setProductLink] = useState(
+  //   singleProduct?.data?.productLink || ""
+  // );
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setProductLink(e.target.value);
+  // };
+
+  const handleCopyClick = () => {
+    const productUrl = `https://kryinternational.com/products/${watch(
+      "productLink"
+    )}`;
+    navigator.clipboard.writeText(productUrl).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
+
+  if (singleProductLoading) {
+    return <LoaderSpinner />;
+  }
+
+  return (
+    <PageWrapper className="bg-white shadow-lg p-4 rounded-md overflow-hidden">
+      <div className="flex justify-end py-3">
+        <Link to={"/kry-admin-portal/add-product"}>
+          <button className="px-4 flex items-center py-1 bg-blue-500 text-white font-sisEmibold rounded hover:bg-blue-600">
+            <Plus className="font-bold w-4 h-4" /> Add Product
+          </button>
+        </Link>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(handleEditProduct)}
+        className="overflow-hidden"
+      >
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="px-4 flex items-center py-1 bg-blue-500 text-white font-sisEmibold rounded hover:bg-blue-600"
+          >
+            {addProductLoading && <ButtonLoader />}
+            Submit
+          </button>
+        </div>
+        <div className="border border-primary p-4 rounded-md my-5">
+          <InputWrapper
+            label={"Edit Product Link"}
+            labelFor="product_name"
+            error={errors?.productName?.message}
+          >
+            <div className="flex flex-col space-y-2">
+              {/* Editable input field for the productLink */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center space-x-2">
+                  <Input
+                    placeholder="Edit product link part"
+                    value={watch("productLink")}
+                    onChange={(e) => setValue("productLink", e.target.value)}
+                    errorMessage={errors.productName?.message}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyClick}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+                  >
+                    {linkCopied ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Show the full URL */}
+              <div className="mt-2 text-sm text-gray-500">
+                <span>Generated Product URL:</span>
+                <a
+                  href={`https://kryinternational.com/products/${watch(
+                    "productLink"
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {" "}
+                  <span className="font-sisEmibold pl-2 text-primary">
+                    https://kryinternational.com/products/
+                    {watch("productLink")}
+                  </span>
+                </a>
+              </div>
+            </div>
+          </InputWrapper>
+        </div>
+        <SectionWrapper className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border border-primary p-4 rounded-md">
+          {/* TYPE */}
+          <InputWrapper
+            label={"Select a Type"}
+            labelFor="product_category"
+            error={errors?.type?.message}
+          >
+            <Select
+              value={watch("type")}
+              onValueChange={(
+                value: "Draft" | "Trust" | "Published" | "Upcoming"
+              ) => {
+                setValue("type", value);
+                setError("type", { type: "custom", message: "" });
+              }}
+            >
+              <SelectTrigger id="product_category">
+                <SelectValue placeholder={"Select a type..."} />
+              </SelectTrigger>
+              <SelectContent className="max-h-[200px] overflow-y-auto">
+                <SelectItem value="Published">Published</SelectItem>
+                <SelectItem value="Draft">Draft</SelectItem>
+                <SelectItem value="Upcoming">Upcoming</SelectItem>
+                <SelectItem value="Trust">Trash</SelectItem>
+              </SelectContent>
+            </Select>
+          </InputWrapper>
+
+          {/* PRODUCT NAME */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.productName.label}
+            labelFor="product_name"
+            error={errors?.productName?.message}
+          >
+            <Input
+              placeholder={ADD_EDIT_PRODUCT_FORM.productName.placeholder}
+              value={watch("productName") || ""}
+              onChange={(e) => setValue("productName", e.target.value)}
+              errorMessage={errors.productName?.message}
+            />
+          </InputWrapper>
+
+          {/* PRODUCT CATEGORY */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.categoryId.label}
+            labelFor="product_category"
+            error={errors?.categoryId?.message}
+          >
+            <SearchableSelect
+              label="Category"
+              labelFor="product_category"
+              value={watch("categoryId")?.toString()}
+              onValueChange={(value) => {
+                setValue("categoryId", +value);
+                setError("categoryId", { type: "custom", message: "" });
+              }}
+              options={categoryList?.data ?? []}
+              error={errors?.categoryId?.message}
+              loading={categoryLoading}
+              labelKey="name"
+            />
+          </InputWrapper>
+
+          {/* PRODUCT SUB CATEGORY */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.subCategoryId.label}
+            labelFor="product_sub_category"
+            error={errors?.subCategoryId?.message}
+          >
+            <MultiSelect
+              name="subCategoryId"
+              label="Subcategories"
+              options={subCategoriesOptions}
+              onChange={handleSubCategoryChange}
+              defaultValue={selectedSubCategories}
+            />
+          </InputWrapper>
+
+          {/* PRODUCT BRAND */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.brandId.label}
+            labelFor="product_brand"
+            error={errors?.brandId?.message}
+          >
+            <SearchableSelect
+              label={"Brand"}
+              labelFor="brand"
+              value={watch("brandId")?.toString()}
+              onValueChange={(value: string) => {
+                setValue("brandId", +value);
+                setError("brandId", { type: "custom", message: "" });
+              }}
+              options={brandList?.data ?? []}
+              error={errors?.brandId?.message}
+              loading={brandLoading}
+              labelKey="brand"
+            />
+          </InputWrapper>
+
+          {/* FEATURE NAME */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.featureId.label}
+            labelFor="product_feature"
+            error={errors?.featureId?.message}
+          >
+            <SearchableSelect
+              label="Feature"
+              labelFor="product_feature"
+              value={watch("featureId")?.toString() ?? ""}
+              onValueChange={(value: string) => {
+                setValue("featureId", value === "none" ? undefined : +value);
+                setError("featureId", { type: "custom", message: "" });
+              }}
+              options={featureList?.data ?? []}
+              error={errors?.featureId?.message}
+              loading={featuredLoading}
+              labelKey="name"
+              noneOption={true}
+            />
+          </InputWrapper>
+
+          {/* VENDOR NAME */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.vendorId.label}
+            labelFor="product_vendor"
+            error={errors?.vendorId?.message}
+          >
+            <SearchableSelect
+              label="Vendor"
+              labelFor="product_vendor"
+              value={watch("vendorId")?.toString() ?? ""}
+              onValueChange={(value: string) => {
+                setValue("vendorId", value === "none" ? undefined : +value);
+                setError("vendorId", { type: "custom", message: "" });
+              }}
+              options={vendorList?.data ?? []}
+              error={errors?.vendorId?.message}
+              loading={vendorLoading}
+              labelKey="name"
+              noneOption={true}
+            />
+          </InputWrapper>
+
+          {/* PRODUCT CONDITION */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.conditionId.label}
+            labelFor="product_condition"
+            error={errors?.conditionId?.message}
+          >
+            <SearchableSelect
+              label="Condition"
+              labelFor="product_condition"
+              value={watch("conditionId")?.toString() ?? ""}
+              onValueChange={(value: string) => {
+                setValue("conditionId", value === "none" ? undefined : +value);
+                setError("conditionId", { type: "custom", message: "" });
+              }}
+              options={conditionList?.data ?? []}
+              error={errors?.conditionId?.message}
+              loading={conditionLoading}
+              labelKey="name"
+              noneOption={true}
+            />
+          </InputWrapper>
+
+          {/* HIGHLIGHT TEXT */}
+          <InputWrapper
+            label={"Highlight Text"}
+            labelFor="highlight_text"
+            error={errors?.highlightText?.message}
+          >
+            <SearchableSelect
+              label={"Highlight Text"}
+              labelFor="highlight_text"
+              value={watch("highlightText") ?? ""}
+              onValueChange={(value: string) => {
+                setValue("highlightText", value === "none" ? undefined : value);
+                setError("highlightText", { type: "custom", message: "" });
+              }}
+              options={highlighList?.data ?? []}
+              error={errors?.highlightText?.message}
+              loading={highlightLoading}
+              labelKey="text"
+              valueKey="text"
+              noneOption={true}
+            />
+          </InputWrapper>
+
+          {/* WHATSAPP NUMBER */}
+          <InputWrapper
+            label={"Whatsapp number ✽"}
+            labelFor="product_category"
+            error={errors?.whatsAppNumber?.message}
+          >
+            <Select
+              value={watch("whatsAppNumber")}
+              onValueChange={(value: string) => {
+                if (value) {
+                  setValue("whatsAppNumber", value);
+                  setError("whatsAppNumber", { type: "custom", message: "" });
+                } else {
+                  setError("whatsAppNumber", {
+                    type: "custom",
+                    message: "WhatsApp number is required",
+                  });
+                }
+              }}
+            >
+              <SelectTrigger id="product_category" className="">
+                <SelectValue placeholder={"None"} />
+              </SelectTrigger>
+              <SelectContent className="max-h-[200px] overflow-y-auto">
+                {whatsappList?.data?.length > 0 &&
+                  whatsappList?.data?.map((singleCategory: any) => (
+                    <SelectItem
+                      key={singleCategory?.id}
+                      value={singleCategory?.number}
+                    >
+                      {capitalizeEveryWord(singleCategory?.number)}
+                    </SelectItem>
+                  ))}
+                {!whatsappList?.data?.length && whatsappLoading && (
+                  <div className="flex justify-center w-full h-8 items-center bg-accent rounded-md">
+                    <ButtonLoader />
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+          </InputWrapper>
+
+          {/* DELIVERY CHARGE INSIDE DHAKA */}
+          {/* <InputWrapper
+            label="Delivery charge inside Dhaka"
+            labelFor={`inSideDeliveryCharge`}
+            error={errors?.inSideDeliveryCharge?.message}
+            className="w-full"
+          >
+            <input
+              type="text"
+              placeholder="Enter Charge"
+              className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+              value={watch(`inSideDeliveryCharge`) || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[0-9]*$/.test(value)) {
+                  setValue(`inSideDeliveryCharge`, Number(value || 0), {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+            />
+          </InputWrapper> */}
+          {/* DELIVERY CHARGE OUTSIDE DHAKA */}
+          {/* <InputWrapper
+            label="Delivery charge Outside Dhaka"
+            labelFor={`outSideDeliveryCharge`}
+            error={errors?.outSideDeliveryCharge?.message}
+            className="w-full"
+          >
+            <input
+              type="text"
+              placeholder="Enter Charge"
+              className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+              value={watch(`outSideDeliveryCharge`) || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[0-9]*$/.test(value)) {
+                  setValue(`outSideDeliveryCharge`, Number(value || 0), {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+            />
+          </InputWrapper> */}
+
+          {/* TAG NAME */}
+          {/* <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.tag.label}
+            labelFor="tag_name"
+            error={errors?.tag?.message}
+          >
+            <SearchableSelect
+              label={"Select Tag"}
+              labelFor="tag_name"
+              value={watch("tag") ?? ""}
+              onValueChange={(value: string) => {
+                setValue("tag", value);
+                setError("tag", { type: "custom", message: "" });
+              }}
+              options={tag?.data ?? []}
+              error={errors?.tag?.message}
+              loading={tagLoading}
+              labelKey="name"
+              valueKey="name"
+            />
+          </InputWrapper> */}
+          <InputWrapper
+            label={ADD_EDIT_PRODUCT_FORM.tag.label}
+            labelFor="tag"
+            error={errors?.tag?.message}
+          >
+            <MultiSelect
+              name="tag"
+              label="Tag"
+              options={tags}
+              onChange={handleTagChange}
+              defaultValue={tags.filter((option) =>
+                selectedTag.includes(option.label)
+              )}
+            />
+          </InputWrapper>
+          <InputWrapper
+            label="SEO Title"
+            labelFor="seoTitle"
+            error={errors.seoTitle?.message}
+          >
+            <Input
+              placeholder="Enter SEO title"
+              value={watch("seoTitle") || ""}
+              onChange={(e) => setValue("seoTitle", e.target.value)}
+            />
+          </InputWrapper>
+
+          {/* SEO Description */}
+          <InputWrapper
+            label="SEO Description"
+            labelFor="seoDescription"
+            error={errors.seoDescription?.message}
+          >
+            <TextArea
+              placeHolder="Enter SEO description"
+              currentValue={watch("seoDescription") || ""}
+              onChange={(e) => setValue("seoDescription", e.target.value)}
+              errorMessage={errors.seoDescription?.message}
+              row={5}
+            />
+          </InputWrapper>
+          <SectionWrapper className="px-4 py-1 w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Select Gift Products
+            </label>
+
+            {giftFields.length === 0 &&
+              (() => {
+                handleAppendGift();
+                return null;
+              })()}
+            {giftFields.map((item, index) => {
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 mt-3 bg-white rounded-lg shadow-sm border"
+                >
+                  <SearchableSelect
+                    label={"Gift"}
+                    labelFor="gift"
+                    onValueChange={(value) => {
+                      handleGiftSelect(value, index);
+                    }}
+                    value={watch(`gifts.${index}`)?.toString() || ""}
+                    options={giftList?.data ?? []}
+                    loading={giftLoading}
+                    labelKey="name"
+                    noneOption={true}
+                  />
+                  {giftFields.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveGift(index)}
+                      className="text-red-500 hover:text-red-700 font-medium text-sm pr-2"
+                    >
+                      <Minus />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Add Gift Button */}
+            <div className="flex justify-end mt-2">
+              <button
+                type="button"
+                onClick={handleAppendGift}
+                className="p-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
+              >
+                <Plus />
+              </button>
+            </div>
+          </SectionWrapper>
+          {watch("isEmi") && (
+            <InputWrapper
+              label="Free EMI Duration"
+              labelFor="freeEmiCharge"
+              error={errors?.freeEmiCharge?.message}
+            >
+              <Select
+                value={watch("freeEmiCharge")?.toString() || "0"}
+                onValueChange={(value: string) => {
+                  setValue("freeEmiCharge", Number(value));
+                  trigger("freeEmiCharge"); // Add this to trigger validation
+                }}
+              >
+                <SelectTrigger id="emi_duration">
+                  <SelectValue placeholder="Select EMI duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">0 month</SelectItem>
+                  <SelectItem value="3">3 months</SelectItem>
+                  <SelectItem value="6">6 months</SelectItem>
+                  <SelectItem value="9">9 months</SelectItem>
+                  <SelectItem value="12">12 months</SelectItem>
+                  <SelectItem value="24">24 months</SelectItem>
+                  <SelectItem value="36">36 months</SelectItem>
+                </SelectContent>
+              </Select>
+            </InputWrapper>
+          )}
+          <div className="flex items-center gap-1 pb-4 pl-2">
+            <input
+              type="checkbox"
+              {...register("isEmi")}
+              defaultChecked={false}
+              className="w-5 h-5"
+            />
+            <span>Apply Emi</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <input
+              className="w-5 h-5"
+              type="checkbox"
+              {...register(`isFullPay`)}
+            />
+            <span className="text-base font-semibold">Is Full Pay?</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <input
+              className="w-5 h-5"
+              type="checkbox"
+              {...register(`isPointUse`)}
+            />
+            <span className="text-base font-semibold">isPointUsed?</span>
+          </div>
+          <InputWrapper
+            label="Order Limit"
+            labelFor={`orderLimit`}
+            error={errors?.orderLimit?.message}
+            className="w-full"
+          >
+            <input
+              type="text"
+              {...register(`orderLimit`, {
+                valueAsNumber: true,
+              })}
+              placeholder="Enter Order Limit"
+              className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+              onChange={(e) => {
+                const value = e.target.value;
+                setValue(`orderLimit`, value === "" ? 0 : Number(value), {
+                  shouldValidate: true,
+                });
+              }}
+              value={watch(`orderLimit`) ?? 0}
+            />
+          </InputWrapper>
+        </SectionWrapper>
+
+        <div className="">
+          {/* VARIATION PRODUCT */}
+          <SectionWrapper className="my-5 border border-primary p-4 rounded-md">
+            {variationFields?.length > 0 &&
+              variationFields?.map((field: any, index: any) => (
+                <div>
+                  <SectionWrapper
+                    key={field.id}
+                    className="grid grid-cols-3 gap-3"
+                  >
+                    {/* RAM */}
+                    <InputWrapper
+                      label={"RAM"}
+                      labelFor={`variationProducts.${index}.ram`}
+                      error={errors?.variationProducts?.[index]?.ram?.message}
+                    >
+                      <SearchableSelect
+                        label={"Ram"}
+                        labelFor="ram_select"
+                        value={watch(`variationProducts.${index}.ram`) ?? ""}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.ram`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={ramList?.data ?? []}
+                        error={errors?.variationProducts?.[index]?.ram?.message}
+                        loading={ramLoading}
+                        labelKey="ram"
+                        valueKey="ram"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+
+                    {/* ROM */}
+                    <InputWrapper
+                      label={"ROM"}
+                      labelFor={`variationProducts.${index}.rom`}
+                      error={errors?.variationProducts?.[index]?.rom?.message}
+                    >
+                      <SearchableSelect
+                        label={"Rom"}
+                        labelFor="rom_select"
+                        value={watch(`variationProducts.${index}.rom`) ?? ""}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.rom`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={romList?.data ?? []}
+                        error={errors?.variationProducts?.[index]?.rom?.message}
+                        loading={romLoading}
+                        labelKey="rom"
+                        valueKey="rom"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+
+                    {/*  SIM */}
+                    <InputWrapper
+                      label={"SIM"}
+                      labelFor={`variationProducts.${index}.sim`}
+                      error={errors?.variationProducts?.[index]?.sim?.message}
+                    >
+                      <SearchableSelect
+                        label={"SIM"}
+                        labelFor="sim_select"
+                        value={watch(`variationProducts.${index}.sim`) ?? ""}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.sim`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={simList?.data ?? []}
+                        error={errors?.variationProducts?.[index]?.sim?.message}
+                        loading={simLoading}
+                        labelKey="sim"
+                        valueKey="sim"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/* SIZE */}
+                    <InputWrapper
+                      label={"Size"}
+                      labelFor={`variationProducts.${index}.size`}
+                      error={errors?.variationProducts?.[index]?.size?.message}
+                    >
+                      <div className="flex items-center gap-2">
+                        <SearchableSelect
+                          label={"Size"}
+                          labelFor="size_select"
+                          value={watch(`variationProducts.${index}.size`) ?? ""}
+                          onValueChange={(value: string) => {
+                            setValue(
+                              `variationProducts.${index}.size`,
+                              value === "none" ? undefined : value
+                            );
+                          }}
+                          options={sizeList?.data ?? []}
+                          error={
+                            errors?.variationProducts?.[index]?.size?.message
+                          }
+                          loading={sizeLoading}
+                          labelKey="size"
+                          valueKey="size"
+                          noneOption={true}
+                        />
+                      </div>
+                    </InputWrapper>
+
+                    {/* REGION */}
+                    <InputWrapper
+                      label={"Region"}
+                      labelFor={`variationProducts.${index}.region`}
+                      error={
+                        errors?.variationProducts?.[index]?.region?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Region"}
+                        labelFor="region_select"
+                        value={watch(`variationProducts.${index}.region`) ?? ""}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.region`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={regionList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.region?.message
+                        }
+                        loading={regionLoading}
+                        labelKey="region"
+                        valueKey="region"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+
+                    {/* Chipset Selection with Search */}
+                    <InputWrapper
+                      label={"Chipset"}
+                      labelFor={`variationProducts.${index}.chipset`}
+                      error={
+                        errors?.variationProducts?.[index]?.chipset?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Chipset"}
+                        labelFor="chipset_select"
+                        value={
+                          watch(`variationProducts.${index}.chipset`) ?? ""
+                        }
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.chipset`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={chipsetList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.chipset?.message
+                        }
+                        loading={chipsetLoading}
+                        labelKey="chipset"
+                        valueKey="chipset"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/* Material Selection with Search */}
+                    <InputWrapper
+                      label={"Material"}
+                      labelFor={`variationProducts.${index}.strapMaterial`}
+                      error={
+                        errors?.variationProducts?.[index]?.strapMaterial
+                          ?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Strap Material"}
+                        labelFor="strapMaterial_select"
+                        value={
+                          watch(`variationProducts.${index}.strapMaterial`) ??
+                          ""
+                        }
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.strapMaterial`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={strapMaterialList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.strapMaterial
+                            ?.message
+                        }
+                        loading={strapMaterialLoading}
+                        labelKey="name"
+                        valueKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/* Connectivity Selection with Search */}
+                    <InputWrapper
+                      label={"Connectivity"}
+                      labelFor={`variationProducts.${index}.connectivity`}
+                      error={
+                        errors?.variationProducts?.[index]?.connectivity
+                          ?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Connectivity"}
+                        labelFor="connectivity_select"
+                        value={
+                          watch(`variationProducts.${index}.connectivity`) ?? ""
+                        }
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.connectivity`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={connectivityList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.connectivity
+                            ?.message
+                        }
+                        loading={connectivityLoading}
+                        labelKey="name"
+                        valueKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/* Connector Selection with Search */}
+                    <InputWrapper
+                      label={"Connector"}
+                      labelFor={`variationProducts.${index}.connectorType`}
+                      error={
+                        errors?.variationProducts?.[index]?.connectorType
+                          ?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Connector Type"}
+                        labelFor="connectorType_select"
+                        value={
+                          watch(`variationProducts.${index}.connectorType`) ??
+                          ""
+                        }
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.connectorType`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={connectorList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.connectorType
+                            ?.message
+                        }
+                        loading={connectorLoading}
+                        labelKey="name"
+                        valueKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/* Connector Selection with Search */}
+                    <InputWrapper
+                      label={"Plug"}
+                      labelFor={`variationProducts.${index}.plugType`}
+                      error={
+                        errors?.variationProducts?.[index]?.plugType?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Plug Type"}
+                        labelFor="plugType_select"
+                        value={
+                          watch(`variationProducts.${index}.plugType`) ?? ""
+                        }
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.plugType`,
+                            value === "none" ? undefined : value
+                          );
+                        }}
+                        options={plugList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.plugType?.message
+                        }
+                        loading={plugLoading}
+                        labelKey="name"
+                        valueKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+                    {/*  */}
+                    <InputWrapper
+                      label={"Regular Warranty"}
+                      labelFor={`variationProducts.${index}.regularWarrantyId`}
+                      error={
+                        errors?.variationProducts?.[index]?.regularWarrantyId
+                          ?.message
+                      }
+                    >
+                      <SearchableSelect
+                        label={"Regular Warranty"}
+                        labelFor="regularWarranty_select"
+                        value={watch(
+                          `variationProducts.${index}.regularWarrantyId`
+                        )?.toString()}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `variationProducts.${index}.regularWarrantyId`,
+                            value === "none" ? undefined : +value
+                          );
+                        }}
+                        options={regularWarrantyList?.data ?? []}
+                        error={
+                          errors?.variationProducts?.[index]?.regularWarrantyId
+                            ?.message
+                        }
+                        loading={regularWarrantyLoading}
+                        labelKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+
+                    {/* Price */}
+                    <InputWrapper
+                      label="Price"
+                      labelFor={`variationProducts.${index}.price`}
+                      error={errors?.variationProducts?.[index]?.price?.message}
+                      className="w-full"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Enter Price"
+                        className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                        value={watch(`variationProducts.${index}.price`) || 0}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow only numbers or empty value for the price field
+                          if (/^[0-9]*$/.test(value)) {
+                            setValue(
+                              `variationProducts.${index}.price`,
+                              Number(value || 0),
+                              {
+                                shouldValidate: true,
+                              }
+                            );
+                          }
+                        }}
+                      />
+                    </InputWrapper>
+
+                    {/* Discount Price */}
+                    <InputWrapper
+                      label="Discount Price"
+                      labelFor={`variationProducts.${index}.discountPrice`}
+                      error={
+                        errors?.variationProducts?.[index]?.discountPrice
+                          ?.message
+                      }
+                      className="w-full"
+                    >
+                      <input
+                        type="text"
+                        {...register(
+                          `variationProducts.${index}.discountPrice`,
+                          {
+                            valueAsNumber: true, // Convert input value to a number
+                          }
+                        )}
+                        placeholder="Enter Discount Price"
+                        className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setValue(
+                            `variationProducts.${index}.discountPrice`,
+                            value === "" ? 0 : Number(value), // Ensure number or 0
+                            { shouldValidate: true }
+                          );
+                        }}
+                        value={
+                          watch(`variationProducts.${index}.discountPrice`) ?? 0
+                        } // Prevent NaN issue
+                      />
+                    </InputWrapper>
+                    <InputWrapper
+                      label="Pre-discount Price"
+                      labelFor={`variationProducts.${index}.preDiscountPrice`}
+                      error={
+                        errors?.variationProducts?.[index]?.preDiscountPrice
+                          ?.message
+                      }
+                      className="w-full"
+                    >
+                      <input
+                        type="text"
+                        {...register(
+                          `variationProducts.${index}.preDiscountPrice`,
+                          {
+                            valueAsNumber: true, // Convert input value to a number
+                          }
+                        )}
+                        placeholder="Enter Pre Discount Price"
+                        className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setValue(
+                            `variationProducts.${index}.preDiscountPrice`,
+                            value === "" ? 0 : Number(value), // Ensure number or 0
+                            { shouldValidate: true }
+                          );
+                        }}
+                        value={
+                          watch(
+                            `variationProducts.${index}.preDiscountPrice`
+                          ) ?? 0
+                        } // Prevent NaN issue
+                      />
+                    </InputWrapper>
+                    <InputWrapper
+                      label="Start Date"
+                      labelFor={`variationProducts.${index}.startDate`}
+                      error={
+                        errors?.variationProducts?.[index]?.startDate?.message
+                      }
+                      className="w-full"
+                    >
+                      <Controller
+                        name={`variationProducts.${index}.startDate`}
+                        control={control}
+                        render={({ field }) => (
+                          <DateTimeInput
+                            name={field.name}
+                            register={register}
+                            watch={watch}
+                            setValue={setValue}
+                          />
+                        )}
+                      />
+                    </InputWrapper>
+                    <InputWrapper
+                      label="End Date"
+                      labelFor={`variationProducts.${index}.endDate`}
+                      error={
+                        errors?.variationProducts?.[index]?.endDate?.message
+                      }
+                      className="w-full"
+                    >
+                      <Controller
+                        name={`variationProducts.${index}.endDate`}
+                        control={control}
+                        render={({ field }) => (
+                          <DateTimeInput
+                            name={field.name}
+                            register={register}
+                            watch={watch}
+                            setValue={setValue}
+                          />
+                        )}
+                      />
+                    </InputWrapper>
+                    {/* Booking Price */}
+                    <InputWrapper
+                      label="Booking Price"
+                      labelFor={`variationProducts.${index}.bookingPrice`}
+                      error={
+                        errors?.variationProducts?.[index]?.bookingPrice
+                          ?.message
+                      }
+                      className="w-full"
+                    >
+                      <input
+                        type="text"
+                        {...register(
+                          `variationProducts.${index}.bookingPrice`,
+                          {
+                            valueAsNumber: true, // Convert input value to a number
+                          }
+                        )}
+                        placeholder="Enter Booking Price"
+                        className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setValue(
+                            `variationProducts.${index}.bookingPrice`,
+                            value === "" ? 0 : Number(value), // Ensure number or 0
+                            { shouldValidate: true }
+                          );
+                        }}
+                        value={
+                          watch(`variationProducts.${index}.bookingPrice`) ?? 0
+                        } // Prevent NaN issue
+                      />
+                    </InputWrapper>
+
+                    {/* Purchase Point */}
+                    <InputWrapper
+                      label="Purchase Point"
+                      labelFor={`variationProducts.${index}.purchasePoint`}
+                      error={
+                        errors?.variationProducts?.[index]?.purchasePoint
+                          ?.message
+                      }
+                      className="w-full"
+                    >
+                      <input
+                        type="text"
+                        {...register(
+                          `variationProducts.${index}.purchasePoint`,
+                          {
+                            valueAsNumber: true,
+                          }
+                        )}
+                        placeholder="Enter Purchase Point"
+                        className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setValue(
+                            `variationProducts.${index}.purchasePoint`,
+                            value === "" ? 0 : Number(value), // Ensure number or 0
+                            { shouldValidate: true }
+                          );
+                        }}
+                        value={
+                          watch(`variationProducts.${index}.purchasePoint`) ?? 0
+                        } // Prevent NaN issue
+                      />
+                    </InputWrapper>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        {...register(
+                          `variationProducts.${index}.isShippedFree`
+                        )}
+                      />
+                      <span className="text-base font-semibold">
+                        Is shipped free?
+                      </span>
+                    </div>
+                  </SectionWrapper>
+                  <div className="grid grid-cols-1 lg:grid-cols-8 mt-5 px-5">
+                    <div className="col-span-1 lg:col-span-5 items-center">
+                      {watch(`variationProducts.${index}.colors`)?.map(
+                        (_, colorIndex) => (
+                          <div
+                            key={colorIndex}
+                            className="flex items-center gap-2"
+                          >
+                            <InputWrapper
+                              label="Color ✽"
+                              labelFor={`variationProducts.${index}.colors.${colorIndex}.colorId`}
+                              error={
+                                errors?.variationProducts?.[index]?.colors?.[
+                                  colorIndex
+                                ]?.colorId?.message
+                              }
+                              className="w-44"
+                            >
+                              <SearchableSelect
+                                label={"Color"}
+                                labelFor="color_select"
+                                value={
+                                  watch(
+                                    `variationProducts.${index}.colors.${colorIndex}.colorId`
+                                  )?.toString() || ""
+                                }
+                                onValueChange={(value: string) => {
+                                  setValue(
+                                    `variationProducts.${index}.colors.${colorIndex}.colorId`,
+                                    parseInt(value, 10)
+                                  );
+                                }}
+                                options={colorList?.data ?? []}
+                                error={
+                                  errors?.variationProducts?.[index]?.colors?.[
+                                    colorIndex
+                                  ]?.colorId?.message
+                                }
+                                loading={colorLoading}
+                                labelKey="color"
+                              />
+                            </InputWrapper>
+                            <InputWrapper
+                              label="Color Price"
+                              labelFor={`variationProducts.${index}.colors.${colorIndex}.price`}
+                              error={
+                                errors?.variationProducts?.[index]?.colors?.[
+                                  colorIndex
+                                ]?.price?.message
+                              }
+                              className="w-[100px]"
+                            >
+                              <input
+                                type="text"
+                                placeholder="Enter Price"
+                                className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                                value={
+                                  watch(
+                                    `variationProducts.${index}.colors.${colorIndex}.price`
+                                  ) || 0
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // Allow only numbers or empty value for the price field
+                                  if (/^[0-9]*$/.test(value)) {
+                                    setValue(
+                                      `variationProducts.${index}.colors.${colorIndex}.price`,
+                                      Number(value || 0),
+                                      {
+                                        shouldValidate: true,
+                                      }
+                                    );
+                                  }
+                                }}
+                              />
+                            </InputWrapper>
+                            <InputWrapper
+                              label="Stock"
+                              labelFor={`variationProducts.${index}.colors.${colorIndex}.price`}
+                              error={
+                                errors?.variationProducts?.[index]?.colors?.[
+                                  colorIndex
+                                ]?.stock?.message
+                              }
+                              className="w-[100px]"
+                            >
+                              <input
+                                type="text"
+                                placeholder="Enter stock"
+                                className="border border-gray-500 pl-3 py-1.5 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                                value={
+                                  watch(
+                                    `variationProducts.${index}.colors.${colorIndex}.stock`
+                                  ) || 0
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // Allow only numbers or empty value for the price field
+                                  if (/^[0-9]*$/.test(value)) {
+                                    setValue(
+                                      `variationProducts.${index}.colors.${colorIndex}.stock`,
+                                      Number(value || 0),
+                                      {
+                                        shouldValidate: true,
+                                      }
+                                    );
+                                  }
+                                }}
+                              />
+                            </InputWrapper>
+                            <input
+                              type="checkbox"
+                              {...register(
+                                `variationProducts.${index}.colors.${colorIndex}.inStock`
+                              )}
+                            />
+                            <span>In Stock</span>
+
+                            <div className="flex items-center gap-2">
+                              {watch(`variationProducts.${index}.colors`)
+                                .length > 1 && (
+                                <button
+                                  className="text-red-500 hover:text-red-700 font-medium text-sm"
+                                  type="button"
+                                  onClick={() => removeColor(index, colorIndex)}
+                                >
+                                  <MinusIcon />
+                                </button>
+                              )}
+                              <button
+                                className=" text-sm rounded-md transition"
+                                type="button"
+                                onClick={() => addColor(index)}
+                              >
+                                <Plus />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    {/* Dynamic Extra Warranty */}
+                    <div className="col-span-1 lg:col-span-3">
+                      <label>Extra Warranty</label>
+                      {watch(`variationProducts.${index}.extraWarranty`)?.map(
+                        (_, warrantyIndex) => (
+                          <div
+                            key={warrantyIndex}
+                            className="flex items-center gap-2 mt-"
+                          >
+                            <InputWrapper
+                              label={""}
+                              labelFor={`variationProducts.${index}.extraWarranty.${warrantyIndex}.name`}
+                              error={
+                                errors?.variationProducts?.[index]
+                                  ?.extraWarranty?.[warrantyIndex]?.name
+                                  ?.message
+                              }
+                            >
+                              <SearchableSelect
+                                label={"Extra warranty"}
+                                labelFor="warranty_select"
+                                value={
+                                  watch(
+                                    `variationProducts.${index}.extraWarranty.${warrantyIndex}.name`
+                                  ) ?? ""
+                                }
+                                onValueChange={(value: string) => {
+                                  setValue(
+                                    `variationProducts.${index}.extraWarranty.${warrantyIndex}.name`,
+                                    value === "none" ? undefined : value
+                                  );
+                                }}
+                                options={warrantyList?.data ?? []}
+                                error={
+                                  errors?.variationProducts?.[index]
+                                    ?.extraWarranty?.[warrantyIndex]?.name
+                                    ?.message
+                                }
+                                loading={warrantyLoading}
+                                labelKey="name"
+                                valueKey="name"
+                                noneOption={true}
+                              />
+                            </InputWrapper>
+
+                            <input
+                              className="border border-gray-500 pl-3 py-1.5 w-24 rounded-md text-gray-700 focus:outline-none focus:ring-2"
+                              type="text"
+                              placeholder="Price"
+                              value={
+                                watch(
+                                  `variationProducts.${index}.extraWarranty.${warrantyIndex}.price`
+                                ) || "" // If there's no value, use an empty string
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^[0-9]*\.?[0-9]{0,2}$/.test(value)) {
+                                  // Allow only numbers and up to 2 decimals
+                                  setValue(
+                                    `variationProducts.${index}.extraWarranty.${warrantyIndex}.price`,
+                                    Number(value)
+                                  );
+                                }
+                              }}
+                            />
+
+                            <div className="flex items-center gap-2">
+                              {watch(`variationProducts.${index}.extraWarranty`)
+                                .length > 1 && (
+                                <button
+                                  className="text-red-500 hover:text-red-700 font-medium text-sm"
+                                  type="button"
+                                  onClick={() =>
+                                    removeWarranty(index, warrantyIndex)
+                                  }
+                                >
+                                  <MinusIcon />
+                                </button>
+                              )}
+                              <button
+                                className=" text-sm rounded-md transition"
+                                type="button"
+                                onClick={() => addWarranty(index)}
+                              >
+                                <Plus />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Remove Variation Button */}
+                  <div className="mb-5">
+                    {variationFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVariation(index)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-md mt-8"
+                      >
+                        <Minus />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+            {/* Add Variation Product Button */}
+            <div className="">
+              <button
+                type="button"
+                onClick={handleAddVariation}
+                className="px-4 ml-4 mt-5 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Add Variation Product
+              </button>
+            </div>
+          </SectionWrapper>
+
+          <div className="grid grid-cols-2 border border-primary p-4 rounded-md">
+            {/* HIGHLIGHT ACCESSORIES */}
+            <SectionWrapper className="px-4 py-1 w-full">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Highlight Products
+              </label>
+              {accessoryFields.length === 0 &&
+                (() => {
+                  handleAppendProduct();
+                  return null;
+                })()}
+              {accessoryFields.map((item, index) => {
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 mt-3 bg-white rounded-lg shadow-sm border"
+                  >
+                    {/* Select Dropdown */}
+                    <SearchableSelect
+                      label={"Highlight Product"}
+                      labelFor="product_select"
+                      onValueChange={(value) => {
+                        handleProductSelect(value, index);
+                      }}
+                      value={
+                        watch(`highlightAccessories.${index}`)?.toString() || ""
+                      }
+                      options={products?.data ?? []}
+                      loading={productLoading}
+                      labelKey="productName"
+                      noneOption={true}
+                    />
+
+                    {/* Remove Button (Only if more than 1 field exists) */}
+                    {accessoryFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProduct(index)}
+                        className="text-red-500 hover:text-red-700 font-medium text-sm pr-2"
+                      >
+                        <Minus />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Add Accessory Button */}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleAppendProduct}
+                  className="mt-2 p-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
+                >
+                  <Plus />
+                </button>
+              </div>
+            </SectionWrapper>
+            {/* FEATURE */}
+            <SectionWrapper className="w-full">
+              {/* Features Section */}
+
+              {fields.map((field: any, index: any) => (
+                <SectionWrapper
+                  key={field.id}
+                  className="flex flex-col gap-4 w-full"
+                >
+                  <div className="flex gap-2 items-end">
+                    {/* Feature Key */}
+                    <InputWrapper
+                      label={ADD_EDIT_PRODUCT_FORM.features.label}
+                      labelFor={`features.${index}.featureKeyId`}
+                      error={errors?.features?.[index]?.featureKeyId?.message}
+                    >
+                      <SearchableSelect
+                        label={"Features"}
+                        labelFor="features_select"
+                        value={watch(
+                          `features.${index}.featureKeyId`
+                        )?.toString()}
+                        onValueChange={(value: string) => {
+                          setValue(
+                            `features.${index}.featureKeyId`,
+                            value === "none" ? undefined : +value
+                          );
+                        }}
+                        options={features?.data ?? []}
+                        error={errors?.features?.[index]?.featureKeyId?.message}
+                        loading={featureLoading}
+                        labelKey="name"
+                        noneOption={true}
+                      />
+                    </InputWrapper>
+
+                    {/* Feature Value */}
+                    <InputWrapper
+                      label="Attribute Value"
+                      labelFor={`features.${index}.value`}
+                      error={errors?.features?.[index]?.value?.message}
+                    >
+                      <input
+                        className="py-2 pl-2 w-full rounded-md border focus:border-primary"
+                        {...register(`features.${index}.value`)}
+                        type="text"
+                        placeholder="Enter attribute value"
+                      />
+                    </InputWrapper>
+                    {fields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="px-4 py-2 mb-1.5 bg-red-500 text-white rounded-md hover:bg-red-600"
+                      >
+                        <Minus />
+                      </button>
+                    )}
+                  </div>
+                </SectionWrapper>
+              ))}
+
+              {/* Add Feature Button */}
+              <div className="mt-2 mr-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => append({ id: 0, featureKeyId: 0, value: "" })}
+                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ml-4"
+                >
+                  <Plus />
+                </button>
+              </div>
+            </SectionWrapper>
+          </div>
+
+          {/* IMAGES */}
+          <SectionWrapper className="border border-primary p-4 rounded-md mt-5">
+            {/* Images Section */}
+            {imagesFields.map((field: any, index: any) => {
+              const selectedColor = watch(`images.${index}.colorId`); // Get selected color
+
+              return (
+                <SectionWrapper key={field.id} className="flex flex-col gap-4">
+                  <div className="flex gap-2 items-center">
+                    {/* Color Selection */}
+                    <InputWrapper
+                      label="Color ✽"
+                      labelFor={`images.${index}.colorId`}
+                      error={errors?.images?.[index]?.colorId?.message}
+                      className="w-full -mt-9"
+                    >
+                      <div className="p-3 border border-gray-300 rounded-lg shadow-sm bg-gray-100">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Color
+                        </label>
+
+                        <SearchableSelect
+                          label={"Ram"}
+                          labelFor="ram_select"
+                          value={selectedColor?.toString()}
+                          onValueChange={(value: string) => {
+                            setValue(`images.${index}.colorId`, +value);
+
+                            setError(`images.${index}.colorId`, {
+                              type: "custom",
+                              message: "",
+                            });
+                          }}
+                          options={colorList?.data ?? []}
+                          error={errors?.images?.[index]?.colorId?.message}
+                          loading={colorLoading}
+                          labelKey="color"
+                        />
+                      </div>
+                    </InputWrapper>
+
+                    {/* Image Upload (Disabled if No Color Selected) */}
+
+                    <InputWrapper label={ADD_EDIT_PRODUCT_FORM.images.label}>
+                      <div className="relative flex items-center gap-2 w-full">
+                        <FileInput
+                          onChange={(selectedFiles) => {
+                            if (selectedFiles[0]) {
+                              setFiles((prev) => ({
+                                ...prev,
+                                [index]: selectedFiles[0],
+                              }));
+                            } else {
+                              setFiles((prev) => {
+                                const updatedFiles = { ...prev };
+                                delete updatedFiles[index];
+                                return updatedFiles;
+                              });
+                            }
+                          }}
+                          currentFile={files[index]}
+                          actionItem={{
+                            ProductImage: [
+                              { imageUrl: watch(`images.${index}.imageUrl`) },
+                            ],
+                          }}
+                          placeholder="Choose an image"
+                          required={false}
+                          id="image"
+                          index={index}
+                          className="mt-2"
+                          disabled={!selectedColor}
+                          onRemove={() => {
+                            setValue(`images.${index}.imageUrl`, "");
+                          }}
+                          onGalleryClick={() => openGalleryForIndex(index)}
+                        />
+
+                        {/* Show loader or checkmark based on the loading state */}
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                          {uploadingImages[index] ? (
+                            <Loader2
+                              className="animate-spin text-blue-500"
+                              size={20}
+                            />
+                          ) : watch(`images.${index}.imageUrl`) ? (
+                            <CheckCircle className="text-green-500" size={20} />
+                          ) : null}
+                        </div>
+                      </div>
+                    </InputWrapper>
+                    <div className="p-2">
+                      <label htmlFor="">{"Alt text"}</label>
+                      <input
+                        placeholder={"Enter alt text"}
+                        value={altTexts[index] || ""}
+                        onChange={(e) =>
+                          setAltTexts((prev) => ({
+                            ...prev,
+                            [index]: e.target.value,
+                          }))
+                        }
+                        className="w-60 border-2 border-gray-400 p-2 rounded-md"
+                      />
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1">
+                      <Dialog open={openModal} onOpenChange={setOpenModal}>
+                        {/* <DialogTrigger asChild>
+                          <Button type="button" size="sm">
+                            <GalleryHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger> */}
+
+                        <DialogContent className="max-h-[80vh] overflow-hidden overflow-y-auto sm:min-w-[1200px]">
+                          <div className="flex justify-between items-center bg-white px-4 rounded-lg">
+                            <div className="relative w-1/3 mx-auto my-4">
+                              <input
+                                type="text"
+                                placeholder="Search..."
+                                className="border rounded pl-10 pr-3 py-1 text-gray-700 w-60"
+                                value={searchGallery}
+                                onChange={(e) =>
+                                  setSearchGallery(e.target.value)
+                                }
+                              />
+                              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            </div>
+                          </div>
+
+                          <div>
+                            {filteredGalleries?.length > 0 ? (
+                              galleryLoading ? (
+                                <div className="flex justify-center mt-10">
+                                  <ButtonLoader />
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                                  {filteredGalleries?.map((gallery) => (
+                                    <div>
+                                      <button
+                                        type="button"
+                                        key={gallery.key} // Using key as the unique identifier
+                                        onClick={() =>
+                                          handleImageSelect(
+                                            currentImageIndex,
+                                            gallery.url
+                                          )
+                                        }
+                                        className="border p-2 hover:bg-gray-100"
+                                      >
+                                        <img
+                                          src={gallery.url}
+                                          alt={
+                                            gallery.key.split("/").pop() ||
+                                            "Gallery image"
+                                          } // Use filename as alt text
+                                          className="w-28 h-24 object-contain object-center"
+                                        />
+                                      </button>
+                                      <Paragraph>
+                                        {extractAltText(gallery.url)}
+                                      </Paragraph>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            ) : (
+                              <p className="text-sm text-center font-semibold text-primary">
+                                {searchGallery
+                                  ? "No images found"
+                                  : "Start typing to search image"}
+                              </p>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+
+                    <div className="mt-7">
+                      <Button
+                        variant={"outline"}
+                        size="sm"
+                        type="button"
+                        onClick={() => {
+                          if (files[index]) {
+                            handleAddImage(index, files[index]);
+                          } else if (watch(`images.${index}.imageUrl`)) {
+                            toast.success("Image already added");
+                          } else {
+                            toast.error(
+                              "Please select an image before adding."
+                            );
+                          }
+                        }}
+                        disabled={
+                          !files[index] && !watch(`images.${index}.imageUrl`)
+                        }
+                      >
+                        {watch(`images.${index}.imageUrl`) ? (
+                          <>
+                            <span className="text-green-600">Added</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-red-600">Add</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {/* Remove Button (If More Than One Image Field Exists) */}
+                    {imagesFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeImages(index)}
+                        className="px-4 mt-9 py-2 mb-1.5 bg-red-500 text-white rounded-md hover:bg-red-600"
+                      >
+                        <Minus />
+                      </button>
+                    )}
+                  </div>
+                </SectionWrapper>
+              );
+            })}
+
+            {/* Add Image Button */}
+            <div className="mt-2 mr-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  // const lastIndex = imagesFields.length - 1;
+                  // const lastColor = watch(`images.${lastIndex}.colorId`);
+                  // const lastImageUrl = watch(`images.${lastIndex}.imageUrl`);
+                  // const lastHasFile = files[lastIndex] || lastImageUrl;
+
+                  // if (!lastColor || !lastHasFile) {
+                  //   toast.error(
+                  //     "Please select a color and image for the current field before adding another."
+                  //   );
+                  //   return;
+                  // }
+                  appendImages({ colorId: 0, imageUrl: "" });
+                }}
+                // disabled={
+                //   !watch(`images.${imagesFields.length - 1}.colorId`) ||
+                //   !(
+                //     files[imagesFields.length - 1] ||
+                //     watch(`images.${imagesFields.length - 1}.imageUrl`)
+                //   )
+                // }
+                className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ml-4"
+              >
+                <Plus />
+              </button>
+            </div>
+          </SectionWrapper>
+        </div>
+        <SectionWrapper className="border border-primary p-4 rounded-md mt-5">
+          {/* <Description control={control} errors={errors} /> */}
+          <Accordion type="single" collapsible className="w-full">
+            {/* In the Box Section */}
+            <AccordionItem value="in-box">
+              <AccordionTrigger className="text-2xl">
+                In the Box
+              </AccordionTrigger>
+              <AccordionContent>
+                <Controller
+                  name="inBox"
+                  control={control}
+                  render={({ field }) => (
+                    <TipTapEditor
+                      content={field.value}
+                      onUpdate={field.onChange}
+                    />
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Short Description Section */}
+            <AccordionItem value="short-description">
+              <AccordionTrigger className="text-2xl">
+                Short Description
+              </AccordionTrigger>
+              <AccordionContent>
+                <Controller
+                  name="sortDescription"
+                  control={control}
+                  render={({ field }) => (
+                    <TipTapEditor
+                      content={field.value}
+                      onUpdate={field.onChange}
+                    />
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <div className="mt-10">
+            <p className="block text-3xl">Specification</p>
+            <Controller
+              name="specification"
+              control={control}
+              defaultValue={singleProduct?.data?.specification || ""}
+              render={({ field }) => (
+                <TipTapEditor content={field.value} onUpdate={field.onChange} />
+              )}
+            />
+          </div>
+          <div className="mt-10">
+            <p className="block text-3xl">Description</p>
+            <Controller
+              name="description"
+              control={control}
+              defaultValue={singleProduct?.data?.description || ""}
+              render={({ field }) => (
+                <TipTapEditor content={field.value} onUpdate={field.onChange} />
+              )}
+            />
+          </div>
+        </SectionWrapper>
+
+        <div className="flex justify-end my-5">
+          <div className="flex items-center justify-between gap-2">
+            {error && "data" in error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Edit Product error</AlertTitle>
+                <AlertDescription>
+                  {(error.data as { message?: string })?.message ||
+                    "Something went wrong! Please try again."}
+                </AlertDescription>
+              </Alert>
+            )}
+            {/* <button
+              type="button"
+              // onClick={handleSaveDraft}
+              className="px-4 py-1 font-sisEmibold rounded border text-blue-500 mr-2"
+            >
+              Save Draft
+            </button> */}
+            <button
+              type="submit"
+              className="px-4 flex items-center py-1 bg-blue-500 text-white font-sisEmibold rounded hover:bg-blue-600"
+            >
+              {addProductLoading && <ButtonLoader />}
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </PageWrapper>
+  );
+};
+
+export default EditProduct;
