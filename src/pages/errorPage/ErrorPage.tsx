@@ -69,12 +69,12 @@ const ErrorPage: FC = () => {
             <p className="text-indigo-200 text-sm">
               Need help? Contact our support team
             </p>
-            <a 
+            {/* <a 
               href={companyData?.data[0]?.email} 
               className="text-white font-medium hover:underline"
             >
               {companyData?.data[0]?.email}
-            </a>
+            </a> */}
           </div>
         </div>
       </div>

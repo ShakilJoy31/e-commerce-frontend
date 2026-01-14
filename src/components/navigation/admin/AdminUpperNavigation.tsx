@@ -39,11 +39,11 @@ export default function AdminUpperNavigation({
   const { data: info } = useGetCompanyInfoAllQuery({});
   const [modalOpen, setModalOpen] = useState(false);
   const [clearCache, { isLoading: deleteLoading }] = useDeleteCasheMutation();
-  useEffect(() => {
-    if (info?.data[0]?.sms < 10) {
-      setModalOpen(true);
-    }
-  }, [info?.data]);
+  // useEffect(() => {
+  //   if (info?.data[0]?.sms < 10) {
+  //     setModalOpen(true);
+  //   }
+  // }, [info?.data]);
 
   const handleLogout = () => {
     shareWithCookies("remove", "__t_beta__token");
@@ -117,9 +117,9 @@ export default function AdminUpperNavigation({
             <h1 className="text-2xl font-bold text-gray-800 mt-5">Warning</h1>
             <p className="text-gray-700 mt-2 text-center text-xl font-semibold">
               Your current SMS is{" "}
-              <span className="text-primary font-bold text-lg">
+              {/* <span className="text-primary font-bold text-lg">
                 {info?.data[0]?.sms}
-              </span>
+              </span> */}
               . Please recharge fast!
             </p>
           </motion.div>
@@ -147,11 +147,11 @@ export default function AdminUpperNavigation({
       {/* Right Section */}
       <div className="flex items-center gap-6">
         <div className="flex flex-col font-semibold">
-          <p>Current SMS : {info?.data[0]?.sms}</p>
-          <p>
+          {/* <p>Current SMS : {info?.data[0]?.sms}</p> */}
+          {/* <p>
             SMS Send <span className="ml-[18px]">:</span>{" "}
             {info?.data[0]?.smsCount}
-          </p>
+          </p> */}
         </div>
         <div>
           <AlertDialog>

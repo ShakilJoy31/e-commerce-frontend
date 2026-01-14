@@ -68,19 +68,19 @@ const BrandList = () => {
   // Brand List
   const brands = data?.data || [];
 
-  useEffect(() => {
-    if (data) {
-      setPagination((prev) => ({
-        ...prev,
-        meta: {
-          page: data.meta.page,
-          size: data.meta.size,
-          total: data.meta.total,
-          totalPage: data.meta.totalPage,
-        },
-      }));
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     setPagination((prev) => ({
+  //       ...prev,
+  //       meta: {
+  //         page: data.meta.page,
+  //         size: data.meta.size,
+  //         total: data.meta.total,
+  //         totalPage: data.meta.totalPage,
+  //       },
+  //     }));
+  //   }
+  // }, [data]);
 const handlePageChange = (page: number) => {
     setPagination((prev) => ({
       ...prev,

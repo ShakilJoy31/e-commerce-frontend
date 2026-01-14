@@ -33,6 +33,8 @@ const version = "V1.0.0";
 
 ///////// PRODUCTION VERSION
 
+
+//! Main
 export const appConfiguration: IConfigurationProps = {
   appName: "Kry International",
   appCode: "__t_beta__",
@@ -49,3 +51,24 @@ export const appConfiguration: IConfigurationProps = {
   progressMessage:
     "Thank you for your interest! 🚀 We're currently working on implementing this feature. Stay tuned, as we'll be activating it very soon!",
 };
+
+
+//! Development 
+
+// export const appConfiguration: IConfigurationProps = {
+//   appName: "Kry International",
+//   appCode: "__t_beta__",
+//   baseUrl: "http://localhost:2000/api/v1",
+//   baseUrl2: "http://localhost:2000/api/v1",
+//   // baseUrl: "http://localhost:2000/api/v1",
+//   databaseResetAPI: "null",
+//   URL: "https://kryinternational.com",
+//   // URL: "https://ecommerce.techelementbd.com",
+//   favicon: "/devs.png",
+//   invoiceBanner: "/invoice-bg.jpg",
+//   logo: "/src/assets/longeng.png",
+//   version,
+//   progressMessage:
+//     "Thank you for your interest! 🚀 We're currently working on implementing this feature. Stay tuned, as we'll be activating it very soon!",
+// };
+

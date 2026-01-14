@@ -9,7 +9,7 @@ import { loadUserFromToken } from "./utils/helper/loadUserFromToken";
 import HomeLoader from "./components/loader/HomeLoader";
 import TrackingProvider from "./utils/TrackingProvider";
 import { useGetCompanyInfoAllQuery } from "./components/store/api/company/companyApi";
-import ScriptInjection from "./components/common/ExternalTracking";
+// import ScriptInjection from "./components/common/ExternalTracking";
 function App() {
   const dispatch = useDispatch();
   // usePageTracking();
@@ -33,12 +33,12 @@ function App() {
 
   return (
     <div>
-      <ScriptInjection
+      {/* <ScriptInjection
         googleScript={companyData?.data[0]?.googleScript}
         facebookScript={companyData?.data[0]?.facebookScript}
         googleNoScript={companyData?.data[0]?.googleNoScript}
         facebookNoScript={companyData?.data[0]?.facebookNoScript}
-      />
+      /> */}
       {/* @ts-expect-error: RouterProvider does not accept children, but we are injecting TrackingProvider anyway */}
       <RouterProvider router={routers}>
         <TrackingProvider />
