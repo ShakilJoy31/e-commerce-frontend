@@ -199,12 +199,6 @@ const adminDashboardProduct = {
           href: "/kry-admin-portal/condition-list",
         },
         {
-          icon: ListIcon,
-          label: "Search Placeholder List",
-          key: "search-list",
-          href: "/kry-admin-portal/search-list",
-        },
-        {
           icon: MdCategory,
           label: "Banner List",
           key: "banner-list",

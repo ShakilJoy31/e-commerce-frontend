@@ -13,6 +13,32 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
+
+const DUMMY_BANKS = [
+  { id: 5, name: "AB BANK LIMITED" },
+  { id: 7, name: "AL-ARAFAH ISLAMI BANK LIMITID" },
+  { id: 8, name: "BANK ASIA LIMITED" },
+  { id: 37, name: "Community Bank Bangladesh Limited" },
+  { id: 11, name: "DHAKA BANK LIMITED" },
+  { id: 12, name: "DUTCH BANGLA BANK" },
+  { id: 13, name: "EASTERN BANK" },
+  { id: 14, name: "EXIM BANK" },
+  { id: 15, name: "ISLAMI BANK BANGLADESH" },
+  { id: 16, name: "JAMUNA BANK" },
+  { id: 17, name: "LANKABANGLA FINANCE" },
+  { id: 34, name: "Meghna Bank Limited" },
+  { id: 18, name: "MERCANTILE BANK" },
+  { id: 36, name: "Midland Bank Ltd" },
+  { id: 31, name: "Modhumoti Bank Limited" },
+  { id: 19, name: "MUTUAL TRUST BANK" },
+  { id: 20, name: "NCC BANK" },
+  { id: 33, name: "NRB Bank Limited" },
+  { id: 32, name: "NRB COMMERCIAL BANK LTD" },
+  { id: 21, name: "ONE BANK" }
+];
+
+
 interface AddEditEmiModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -51,6 +77,8 @@ export default function AddEditEmiModal({
     isLoading: isBanksLoading,
     isError: isBanksError,
   } = useGetBanksQuery({});
+
+  console.log(banks) //! Use this dynamic bank data when bank is dynamically added. 
 
   // Reset state when modal opens or currentEmi changes
   useEffect(() => {
@@ -117,7 +145,7 @@ export default function AddEditEmiModal({
                   ? "Failed to load banks"
                   : "Select a bank"}
               </option>
-              {banks?.data?.map((bank: any) => (
+              {DUMMY_BANKS?.map((bank: any) => (
                 <option key={bank.id} value={bank.id}>
                   {bank.name}
                 </option>
