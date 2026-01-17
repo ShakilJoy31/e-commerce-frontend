@@ -33,7 +33,7 @@ const version = "V1.0.0";
 
 ///////// PRODUCTION VERSION
 
-
+ 
 //! Main
 export const appConfiguration: IConfigurationProps = {
   appName: "Kry International",
@@ -59,7 +59,7 @@ export const appConfiguration: IConfigurationProps = {
 //   appName: "Kry International",
 //   appCode: "__t_beta__",
 //   baseUrl: "http://localhost:2000/api/v1",
-//   baseUrl2: "http://localhost:2000/api/v1",
+//   baseUrl2: "http://localhost:2000/api/v1", 
 //   // baseUrl: "http://localhost:2000/api/v1",
 //   databaseResetAPI: "null",
 //   URL: "https://kryinternational.com",
