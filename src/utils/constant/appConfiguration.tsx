@@ -37,7 +37,7 @@ const version = "V1.0.0";
 //! Main
 export const appConfiguration: IConfigurationProps = {
   appName: "Kry International",
-  appCode: "__t_beta__",
+  appCode: "__t_beta__", 
   baseUrl: "https://e-commerce-tech-elemet-bd.vercel.app/api/v1",
   baseUrl2: "https://api.kryinternational.com/api/v1",
   // baseUrl: "https://e-commerce-tech-elemet-bd.vercel.app/api/v1",
