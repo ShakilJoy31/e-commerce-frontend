@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { IoLocationOutline } from "react-icons/io5";
 import payment from "../../../assets/images/footer/SSLCommerz.jpg";
 import ButtonLoader from "@/components/loader/ButtonLoader";
+import logo from "@/assets/images/icon/systech-bd-1761568143.png";
 
 const Footer = ({ data, isLoading }) => {
 
@@ -28,24 +29,25 @@ const Footer = ({ data, isLoading }) => {
     return new Date().getFullYear();
   };
   return (
-    <footer className="bg-[#040273]">
+    <footer className="bg-gradient-to-b from-[#040273] to-[#020138]">
       <div className="max-w-screen-xl px-4 pt-5 md:pt-12 pb-6 mx-auto sm:px-6 lg:px-8 lg:pt-16">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
             <div className="flex flex-col md:flex-row items-start gap-3 justify-center">
               <img
-                src={data?.data?.companyInfo?.[0]?.footerLogo}
+                // src={data?.data?.companyInfo?.[0]?.footerLogo}
+                src={logo}
                 alt="kry-international"
-                className="w-16 h-16 mx-auto rounded-full md:mx-0"
+                className=""
               />
-              <div className="mx-auto md:mx-0">
+              {/* <div className="mx-auto md:mx-0">
                 <h1 className="text-xl lg:text-2xl font-bold text-center md:text-start text-white">
                   KRY International
                 </h1>
                 <p className="text-gray-300">
                   Trusted Online & Offline Shopping Site.
                 </p>
-              </div>
+              </div> */}
             </div>
 
             <div className="md:mt-4 w-full lg:w-4/5">
@@ -77,7 +79,8 @@ const Footer = ({ data, isLoading }) => {
                         <ButtonLoader />
                       </>
                     ) : (
-                      <>{data?.data?.companyInfo?.[0]?.phone2}</>
+                      // <>{data?.data?.companyInfo?.[0]?.phone2}</>
+                      <>01712807642</>
                     )}
                   </span>
                 </h2>
@@ -147,7 +150,8 @@ const Footer = ({ data, isLoading }) => {
                     policyPages?.map((page: any) => (
                       <Link to={`/pages/${page?.slug}`}>
                         <li className="text-white transition hover:text-white/75 my-4">
-                          {page?.title}
+                          {/* {page?.title} */}
+                          SecureBD Support
                         </li>
                       </Link>
                     ))}
@@ -164,7 +168,8 @@ const Footer = ({ data, isLoading }) => {
                     helpFulLinks?.map((page: any) => (
                       <Link to={`/pages/${page?.slug}`}>
                         <li className="text-white transition hover:text-white/75 my-4">
-                          {page?.title}
+                          {/* {page?.title} */}
+                          SecureBD Support
                         </li>
                       </Link>
                     ))}
@@ -198,7 +203,8 @@ const Footer = ({ data, isLoading }) => {
                   </svg>
 
                   <address className="-mt-0.5 not-italic text-white">
-                    Bashundhara City Shopping Complex, Dhaka
+                    {/* Bashundhara City Shopping Complex, Dhaka */}
+                    Singair, Manikgonj, Dhaka, Bangladesh
                   </address>
                 </li>
                 <li>
@@ -404,7 +410,7 @@ const Footer = ({ data, isLoading }) => {
               className="text-primary-100 hover:underline font-semibold"
               href="/"
             >
-              Kry-International {getCurrentYear()}
+              SECUREBDIT {getCurrentYear()}
             </a>
             . All rights reserved.
           </p>

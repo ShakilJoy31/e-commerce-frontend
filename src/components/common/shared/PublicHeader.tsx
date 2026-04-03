@@ -30,9 +30,10 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import ButtonLoader from "@/components/loader/ButtonLoader";
 import { useGetSearchProductsQuery } from "@/components/store/api/products/productApi";
 import { useDebounce } from "use-debounce";
-import { Button } from "@/components/ui/button";
+import logo from "@/assets/images/icon/systech-bd-1761568143.png";
 
 export default function PublicHeader({data, isLoading:bannerLoading}) {
+   console.log(bannerLoading)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const user = useSelector(selectUser);
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,7 +129,9 @@ export default function PublicHeader({data, isLoading:bannerLoading}) {
   };
 
   const companyName = data?.data?.companyInfo[0]?.companyName;
-  const logo = data?.data?.companyInfo[0]?.logo;
+  console.log(companyName)
+  // const logo = data?.data?.companyInfo[0]?.logo;
+    // const logo = data?.data?.companyInfo[0]?.logo;
 
   return (
     <div className="sticky top-0 z-50 bg-[#F1F1F1] px-5 w-full">
@@ -140,11 +143,11 @@ export default function PublicHeader({data, isLoading:bannerLoading}) {
               <img
                 src={logo}
                 alt="KRY International Logo"
-                className="h-[37px] rounded-full"
+                className="h-[37px] rounded-full invert brightness-200"
               />
-              <h3 className="text-[20px] hidden lg:block font-bold text-primary">
+              {/* <h3 className="text-[20px] hidden lg:block font-bold text-primary">
                 {bannerLoading ? <ButtonLoader /> : companyName}
-              </h3>
+              </h3> */}
             </Link>
 
             {/* SEARCH BUTTON */}
@@ -250,19 +253,6 @@ export default function PublicHeader({data, isLoading:bannerLoading}) {
                 <span className="text-sm font-semibold">Discount / Offer</span>
               </Link>
             </div>
-            <a
-              href="https://old.kryinternational.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {" "}
-              <Button
-                variant={"outline"}
-                className="h-9 text-primary font-semibold rounded-full border-[#ABC3E3]"
-              >
-                Old Website
-              </Button>
-            </a>
 
             <div>
               <Link

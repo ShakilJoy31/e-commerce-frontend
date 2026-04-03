@@ -16,6 +16,7 @@ function App() {
   // useFacebookPixel();
   const { data: companyData, isLoading } = useGetCompanyInfoAllQuery({});
 
+  console.log("Company Data in App Component:", companyData);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

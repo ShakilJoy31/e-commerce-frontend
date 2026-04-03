@@ -10,6 +10,7 @@ const ErrorPage: FC = () => {
   const error = useRouteError() as any;
   const navigate = useNavigate();
   const { data: companyData } = useGetCompanyInfoAllQuery({});
+  console.log(companyData)
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col lg:flex-row items-center justify-center p-6">

@@ -1858,10 +1858,11 @@ console.log(lowestEffectiveCost, lowestEmiMonth)
                     </p>
                     {details?.data?.whatsAppNumber && (
                       <a
-                        href={`tel:${details.data.whatsAppNumber}`}
+                        href={`tel:+8801712807642`}
                         className="px-3 py-1 rounded-md bg-blue-100 text-blue-800 font-semibold hover:bg-green-200 transition"
                       >
-                        {details.data.whatsAppNumber}
+                        {/* {details.data.whatsAppNumber} */}
+                        +8801712807642
                       </a>
                     )}
                   </div>

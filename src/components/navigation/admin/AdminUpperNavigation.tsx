@@ -39,6 +39,7 @@ export default function AdminUpperNavigation({
   const { data: info } = useGetCompanyInfoAllQuery({});
   const [modalOpen, setModalOpen] = useState(false);
   const [clearCache, { isLoading: deleteLoading }] = useDeleteCasheMutation();
+  console.log("Company Info in AdminUpperNavigation:", info);
   // useEffect(() => {
   //   if (info?.data[0]?.sms < 10) {
   //     setModalOpen(true);

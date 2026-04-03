@@ -12,8 +12,11 @@ import { IoSearch } from "react-icons/io5";
 import { shareWithCookies } from "@/utils/helper/shareWithCookies";
 import { useSelector } from "react-redux";
 import { selectUser } from "@/components/store/store";
+import logo from "@/assets/images/icon/systech-bd-1761568143.png";
+
 
 const MobileNav = ({data, isLoading:bannerLoading}) => {
+  console.log("Data in MobileNav Component:", bannerLoading);
   const navigate = useNavigate();
   const user = useSelector(selectUser);
   const [isOpen, setIsOpen] = useState(false);
@@ -146,13 +149,15 @@ const MobileNav = ({data, isLoading:bannerLoading}) => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={data?.data?.companyInfo[0]?.logo}
+            // data?.data?.companyInfo[0]?.logo
+              src={logo}
               alt="KRY Logo"
-              className="h-[30px] rounded-full"
+              className="h-[30px] rounded-full invert brightness-200"
             />
-            <h3 className="text-sm font-bold text-primary">
+            {/* <h3 className="text-sm font-bold text-primary">
+              data?.data?.companyInfo[0]?.companyName
               {bannerLoading ? <ButtonLoader /> : data?.data?.companyInfo[0]?.companyName}
-            </h3>
+            </h3> */}
           </Link>
 
           {/* Search Icon */}
