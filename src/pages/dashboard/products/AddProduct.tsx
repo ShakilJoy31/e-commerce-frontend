@@ -128,11 +128,16 @@ const AddProduct = () => {
     page: 1,
     size: 1000,
   });
-  const { data: whatsappList, isLoading: whatsappLoading } =
-    useGetWhatsAppContactsQuery({
-      page: 1,
-      size: 1000,
-    });
+  // const { data: whatsappList, isLoading: whatsappLoading } =
+  //   useGetWhatsAppContactsQuery({
+  //     page: 1,
+  //     size: 1000,
+  //   });
+    const whatsappList = {
+      data: ['01712807642', '01717999424', '01712920237']
+    }
+    const whatsappLoading = false; 
+
   const { data: highlighList, isLoading: highlightLoading } =
     useGetHighlightTextsQuery({
       page: 1,
@@ -1048,10 +1053,10 @@ const AddProduct = () => {
                 {whatsappList?.data?.length > 0 &&
                   whatsappList?.data?.map((singleCategory: any) => (
                     <SelectItem
-                      key={singleCategory?.id}
-                      value={singleCategory?.number}
+                      key={singleCategory}
+                      value={singleCategory}
                     >
-                      {capitalizeEveryWord(singleCategory?.number)}
+                      {capitalizeEveryWord(singleCategory)}
                     </SelectItem>
                   ))}
                 {!whatsappList?.data?.length && whatsappLoading && (

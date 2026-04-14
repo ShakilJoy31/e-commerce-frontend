@@ -129,7 +129,7 @@ const AdminSidebarNavigation = ({
       initial={{ width: sidebarOpen ? 70 : 280 }}
       animate={{ width: sidebarOpen ? 280 : 70 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="bg-primary text-white fixed h-full pb-16 mt-20 shadow-lg z-40 border-r dark:border-border flex flex-col"
+      className="bg-gradient-to-b from-[#010120] to-[#0604b3] text-white fixed h-full pb-16 mt-12 shadow-lg z-40 border-r dark:border-border flex flex-col"
     >
       {/* ROLE SELECTOR FOR TESTING */}
       {sidebarOpen && (
@@ -165,7 +165,7 @@ const AdminSidebarNavigation = ({
             transition={{ duration: 0.2 }}
             className={`text-2xl font-semibold ${!sidebarOpen && "hidden"}`}
           >
-            KRY Dashboard
+            SECURETECH BD
           </motion.h1>
         </Link>
         <button

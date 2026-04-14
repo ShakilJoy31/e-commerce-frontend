@@ -38,9 +38,10 @@ const version = "V1.0.0";
 export const appConfiguration: IConfigurationProps = {
   appName: "SECURETECHBD",
   appCode: "__t_beta__", 
-  baseUrl: "https://e-commerce-tech-elemet-bd.vercel.app/api/v1",
   baseUrl2: "https://api.kryinternational.com/api/v1",
   // baseUrl: "https://e-commerce-tech-elemet-bd.vercel.app/api/v1",
+    baseUrl: "http://localhost:2000",
+      // baseUrl: "https://e-commerce-tech-elemet-bd.vercel.app/api/v1",
   databaseResetAPI: "null",
   URL: "https://kryinternational.com",
   // URL: "https://ecommerce.techelementbd.com",
@@ -72,3 +73,6 @@ export const appConfiguration: IConfigurationProps = {
 //     "Thank you for your interest! 🚀 We're currently working on implementing this feature. Stay tuned, as we'll be activating it very soon!",
 // };
 
+
+//! The working url
+// https://api.kryinternational.com/api/v1

@@ -5,7 +5,7 @@ import { FiAlertTriangle, FiMenu } from "react-icons/fi";
 import { MdOutlineCached } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../../assets/images/icon/favicon.png";
+import logo from "../../../assets/images/icon/systech-bd-1761568143.png";
 import { useGetCompanyInfoAllQuery } from "@/components/store/api/company/companyApi";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -92,7 +92,7 @@ export default function AdminUpperNavigation({
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
-        bg-primary text-white px-6 py-2 flex justify-between items-center`}
+        bg-gradient-to-r from-[#020130] to-[#0705e0] text-white px-6 py-2 flex justify-between items-center`}
     >
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="">
@@ -134,8 +134,7 @@ export default function AdminUpperNavigation({
       {/* Left Section */}
       <div className="flex items-center gap-4">
         <Link to={"/"} className="flex items-center gap-2">
-          <img className="w-16" src={logo} alt="logo" />
-          <span className="text-xl font-bold">Kry International</span>
+          <img className="w-64" src={logo} alt="logo" />
         </Link>
         <button
           onClick={() => setMobileSidebarOpen(true)}
