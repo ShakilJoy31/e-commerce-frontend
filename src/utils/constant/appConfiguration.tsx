@@ -53,7 +53,7 @@ export const appConfiguration: IConfigurationProps = {
     "Thank you for your interest! 🚀 We're currently working on implementing this feature. Stay tuned, as we'll be activating it very soon!",
 };
 
-
+ 
 //! Development 
 
 // export const appConfiguration: IConfigurationProps = {
