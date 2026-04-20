@@ -142,8 +142,8 @@ export default function PublicHeader({data, isLoading:bannerLoading}) {
             <Link to="/" className="flex items-center gap-2">
               <img
                 src={logo}
-                alt="KRY International Logo"
-                className="h-[37px] rounded-full invert brightness-200"
+                alt="SECURETECHBD Logo"
+                className="h-[47px] rounded-full "
               />
               {/* <h3 className="text-[20px] hidden lg:block font-bold text-primary">
                 {bannerLoading ? <ButtonLoader /> : companyName}

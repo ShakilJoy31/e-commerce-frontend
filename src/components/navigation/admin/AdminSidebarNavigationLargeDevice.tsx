@@ -131,64 +131,10 @@ const AdminSidebarNavigation = ({
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="bg-gradient-to-b from-[#010120] to-[#0604b3] text-white fixed h-full pb-16 mt-12 shadow-lg z-40 border-r dark:border-border flex flex-col"
     >
-      {/* ROLE SELECTOR FOR TESTING */}
-      {sidebarOpen && (
-        <div className="p-4 border-b border-white/20">
-          <div className="flex items-center gap-2 mb-2">
-            <User size={16} />
-            <span className="text-sm font-medium">Test Role:</span>
-          </div>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="w-full bg-blue-600 text-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-white"
-          >
-            {roleOptions.map((role) => (
-              <option key={role.value} value={role.value}>
-                {role.label}
-              </option>
-            ))}
-          </select>
-          <div className="mt-2 text-xs text-white/70 flex items-center gap-1">
-            <Settings size={12} />
-            <span>Currently testing as: {selectedRole.replace("_", " ")}</span>
-          </div>
-        </div>
-      )}
-
-      {/* BRAND HEADER */}
-      <div className="p-4 flex items-center justify-between">
-        <Link to="/">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: sidebarOpen ? 1 : 0, x: sidebarOpen ? 0 : -20 }}
-            transition={{ duration: 0.2 }}
-            className={`text-2xl font-semibold ${!sidebarOpen && "hidden"}`}
-          >
-            SECURETECH BD
-          </motion.h1>
-        </Link>
-        <button
-          onClick={() => setSidebarOpen((prev: any) => !prev)}
-          className="text-2xl"
-        >
-          <FiMenu />
-        </button>
-      </div>
 
       {/* NAVIGATION LINKS */}
       <nav className="flex-1 overflow-y-auto custom-scrollbar pb-4">
-        <div className="px-4 py-2 text-xs text-white/70">
-          {sidebarOpen && (
-            <div className="flex justify-between items-center">
-              <span>Showing {filteredNavigationLinks.length} items</span>
-              <span className="bg-blue-600 px-2 py-1 rounded text-xs">
-                {selectedRole.replace("_", " ")}
-              </span>
-            </div>
-          )}
-        </div>
-        <ul className="mt-2">
+        <ul>
           {filteredNavigationLinks.map((link, index) => {
             const totalCount =
               link.label === "Orders" && notificationData?.data

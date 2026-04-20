@@ -134,7 +134,7 @@ export default function AdminUpperNavigation({
       {/* Left Section */}
       <div className="flex items-center gap-4">
         <Link to={"/"} className="flex items-center gap-2">
-          <img className="w-64" src={logo} alt="logo" />
+          <img className="w-64 brightness-0 invert" src={logo} alt="logo" />
         </Link>
         <button
           onClick={() => setMobileSidebarOpen(true)}

@@ -33,12 +33,12 @@ const Footer = ({ data, isLoading }) => {
       <div className="max-w-screen-xl px-4 pt-5 md:pt-12 pb-6 mx-auto sm:px-6 lg:px-8 lg:pt-16">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
-            <div className="flex flex-col md:flex-row items-start gap-3 justify-center">
+            <div className="flex flex-col md:flex-row items-start gap-3 justify-start">
               <img
                 // src={data?.data?.companyInfo?.[0]?.footerLogo}
                 src={logo}
                 alt="kry-international"
-                className=""
+                className="brightness-0 invert w-80"
               />
               {/* <div className="mx-auto md:mx-0">
                 <h1 className="text-xl lg:text-2xl font-bold text-center md:text-start text-white">
